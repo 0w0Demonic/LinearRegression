@@ -26,6 +26,7 @@ public final class Regression {
 	private final List<Point> points;
 	private final String columnNameX;
 	private final String columnNameY;
+	private final String[] columnNames;
 	
 	public double getR() {
 		return this.r;
@@ -42,6 +43,9 @@ public final class Regression {
 	public String getColumnNameY() {
 		return this.columnNameY;
 	}
+	public String[] getAllColumnNames() {
+		return this.columnNames;
+	}
 	/////////////////////////////////////////////////////////////////////////////
 	// Constructor which is invoked by using Regression.Builder.build();
 	// This is where the result is going to be calculated.
@@ -52,6 +56,7 @@ public final class Regression {
 		this.points = builder.list;
 		this.columnNameX = builder.columnNameX;
 		this.columnNameY = builder.columnNameY;
+		this.columnNames = builder.columnNames;
 		
 		Point p = null;
 		int size = this.points.size();
@@ -180,6 +185,7 @@ public final class Regression {
 		// Names of columns read in a CSV file, default to "x", "y".
 		private String columnNameX = "x";
 		private String columnNameY = "y";
+		private String[] columnNames = {"x", "y"};
 		
 		// private constructor
 		// Use Regression.newBuilder() to get a new instance
@@ -293,6 +299,7 @@ public final class Regression {
 				ensure(elements.length >= i2,
 						"Argument index2 is outside of valid bounds 0 and " + (elements.length-1));
 				
+				this.columnNames = elements;
 				this.columnNameX = elements[i1];
 				this.columnNameY = elements[i2];
 				
