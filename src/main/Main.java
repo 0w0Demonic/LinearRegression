@@ -15,13 +15,14 @@ public final class Main {
 											  "snow");
 		
 		List<Point> points = res.getAllPoints();
-		
+		points.forEach(System.out::println);
 		
 		double r = res.getR();
 		double d = res.getD();
 		String nameOfXColumn = res.getColumnNameX();
 		String nameOfYColumn = res.getColumnNameY();
 		String[] columns = res.getAllColumnNames();
+		
 		
 		res = Regression.newBuilder()
 					.add(12.4, 2134.0)
