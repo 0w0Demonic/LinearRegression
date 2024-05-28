@@ -287,8 +287,11 @@ public final class Regression {
 			{
 				line = br.readLine();
 				elements = line.split(",");
-				ensure(elements.length <= i1, "Argument #1 lies out of bounds: " + i1);
-				ensure(elements.length <= i2, "Argument #2 lies out of bounds: " + i2);
+				ensure(elements.length >= i1,
+						"Argument index1 is outside of valid bounds 0 and " + (elements.length-1));
+				
+				ensure(elements.length >= i2,
+						"Argument index2 is outside of valid bounds 0 and " + (elements.length-1));
 				
 				this.columnNameX = elements[i1];
 				this.columnNameY = elements[i2];
