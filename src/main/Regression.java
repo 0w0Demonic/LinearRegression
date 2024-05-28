@@ -19,53 +19,43 @@ import java.util.List;
  * Result myResult2 = Result.ofPointList(getPoints());
  */
 public final class Regression {
-	/**
-	 * The field r
-	 */
-	final private double r;
+	/////////////////////////////////////////////////////////////////////////////
+	// private final fields, and their public getter methods.
+	private final double r;
+	private final double d;
+	private final List<Point> points;
+	private final String columnNameX;
+	private final String columnNameY;
 	
-	/**
-	 * The field d
-	 */
-	final private double d;
 	
-	/**
-	 * List of all points of this linear regression
-	 */
-	final private List<Point> points;
-	
-	/**
-	 * @return r            the value r
-	 */
+	public String getColumnNameX() {
+		return this.columnNameX;
+	}
+	public String getColumnNameY() {
+		return this.columnNameY;
+	}
 	public double getR() {
 		return this.r;
 	}
-	
-	/**
-	 * @return d           	the value d
-	 */
 	public double getD() {
 		return this.d;
 	}
-	
-	/**
-	 * @return points		the List<Points> of all points in this linear regression
-	 */
 	public List<Point> getAllPoints() {
 		return this.points;
 	}
-	
-	/**
-	 * @param list          an instance of Regression.Builder
-	 * @returns             an immutable Result instance
-	 */
+	/////////////////////////////////////////////////////////////////////////////
+	// Constructor which is invoked by using Regression.Builder.build();
+	// This is where the result is going to be calculated.
 	private Regression(Builder builder) {
-		// early initialization convinces the VM to be less trash lmfao
-		if (builder.list.size() < 2)
-			throw new IllegalArgumentException(
-					"Not enough points given to make an appropriate linear regression;"
-					+ "At least 2 points are needed.");
+		
+		ensure(builder.list.size() >= 2, "Not enough points were provided to make an approproate "
+				+ "linear regression graph. At least 2 points are needed");
+		
+		
 		this.points = builder.list;
+		this.columnNameX = builder.columnNameX;
+		this.columnNameY = builder.columnNameY;
+		
 		Point p = null;
 		int size = this.points.size();
 		double sumX = 0, sumY = 0, sumXY = 0,
@@ -104,10 +94,7 @@ public final class Regression {
 		this.d = d;
 	}
 	
-	/**
-	 * String representation of the Regression instance.
-	 * @returns            a String in the format of "Result [r = 123, d = 321]"
-	 */
+	// String representation in the format of "Result [r = 123, d = 321]"
 	@Override
 	public String toString() {
 		return new StringBuilder(128)
@@ -119,40 +106,41 @@ public final class Regression {
 			.toString();
 	}
 	
-	/**
-	 * @param c            a Collection<Point> instance
-	 * @return             an immutable Result instance
-	 */
+	/////////////////////////////////////////////////////////////////////////////
+	// Simple static factories
+	//
+	// Supported params:
+	// 1. double...
+	// 2. Point...
+	// 3. Collection<Double>
+	// 4. Collection<Point>
+	
 	public static final Regression ofPoints(Collection<Point> c) {
 		return newBuilder().addPoints(c).build();
 	}
 	
-	/**
-	 * @param points       an array of points
-	 * @return             an immutable Result instance
-	 */
 	public static final Regression ofPoints(Point... arr) {
 		return newBuilder().addPoints(arr).build();
 	}
 	
-	/**
-	 * @param doubleList   a list of doubles (alternating x and y values)
-	 * @return             an immutable Result instance
-	 */
 	public static final Regression ofDoubles(Collection<Double> c) {
 		return newBuilder().addDoubles(c).build();
 	}
 	
-	/**
-	 * @param doubleArray  an array of doubles (alternating x and y values)
-	 * @return             an immutable Result instance
-	 */
 	public static final Regression ofDoubles(double... arr) {
 		return newBuilder().addDoubles(arr).build();
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////
-	// A massive amount of static factory methods
+	// CSV file static factories
+	//
+	// Supported params:
+	// 1. String|File|Path (file)
+	// 2. String|File|Path (file), int   (column index), int   (column index)
+	// 3. String|File|Path (file), String (column name), String (column name)
+	//
+	// function signature #1 will assume x and y to be the first two columns.
+	
 	public static final Regression ofCSVFile(String filePath) {
 		return newBuilder().addCSVFile(Path.of(filePath), 0, 1).build();
 	}
@@ -181,78 +169,59 @@ public final class Regression {
 		return newBuilder().addCSVFile(path, name1, name2).build();
 	}
 	/////////////////////////////////////////////////////////////////////////////
-	
-	/**
-	 * Returns an instance of Regression.Builder.
-	 * @return             a new Regression.Builder instance
-	 */
+	// Returns a new instance of Regression.Builder.
 	public static final Builder newBuilder() {
 		return new Regression.Builder();
 	}
 	
-	/**
-	 * The class that is used to build an instance of Regression.
-	 */
+	/////////////////////////////////////////////////////////////////////////////
+	// Class that constructs new Regression instances
 	public static final class Builder {
-		/**
-		 * Temporary storage that hold a list of Point instances
-		 */
+		// ArrayList<Point> of all points
 		private final List<Point> list = new ArrayList<>();
 		
-		/**
-		 * Private constructor.
-		 * Accessible via the Result.newBuilder() method.
-		 */
+		
+		// Names of columns read in a CSV file, default to "x", "y".
+		private String columnNameX = "x";
+		private String columnNameY = "y";
+		
+		// private constructor
+		// Use Regression.newBuilder() to get a new instance
 		private Builder() {}
 		
-		/**
-		 * Adds a Point instance to the Builder.
-		 * @param p             the Point instance
-		 * @return              the Builder itself
-		 */
+		// The build method used to create a new Regression instance
+		public Regression build() {
+			return new Regression(this);
+		}
+		
+		/////////////////////////////////////////////////////////////////////////
+		// Simple add methods
+		//
+		// Point
+		// Point[]
+		// double, double
+		// double[]
+		// Collection<Point>
+		// Collection<Double>
+		
 		public Builder add(Point p) {
 			this.list.add(p);
 			return this;
 		}
-		
-		/**
-		 * Adds a Point instance to the Builder.
-		 * @param x             the x value of the new Point
-		 * @param y             the y value of the new Point
-		 * @return              the Builder itself
-		 */
 		public Builder add(double x, double y) {
 			this.list.add(Point.valueOf(x, y));
 			return this;
 		}
-		
-		/**
-		 * Adds Point instances to the Builder.
-		 * @param c             a Collection<Point> instance
-		 * @return              the Builder itself
-		 */
 		public Builder addPoints(Collection<Point> c) {
 			this.list.addAll(c);
 			return this;
 		}
-		
-		/**
-		 * Adds Point instances to the Builder.
-		 * @param points        an array of points
-		 * @return              the Builder itself
-		 */
 		public Builder addPoints(Point... points) {
 			for (int i = 0; i < points.length; i++) {
 				this.list.add(points[i]);
 			}
 			return this;
 		}
-		
-		/**
-		 * Adds Point instances to the Builder.
-		 * @param c             a Collection<Double> instance
-		 * @return              the Builder itself
-		 */
 		public Builder addDoubles(Collection<Double> c) {
 			int estimateSize = (int)c.spliterator().getExactSizeIfKnown();
 			int counter = 0;
@@ -270,12 +239,6 @@ public final class Regression {
 			checkArgumentLength(counter);
 			return this;
 		}
-		
-		/**
-		 * Adds Point instances to the Builder.
-		 * @param doubles       an array of doubles
-		 * @return              the Builder itself
-		 */
 		public Builder addDoubles(double... doubles) {
 			int length = checkArgumentLength(doubles.length);
 			for (int i = 0; i < length; ++i) {
@@ -285,7 +248,16 @@ public final class Regression {
 			return this;
 		}
 		
-		
+		/////////////////////////////////////////////////////////////////////////
+		// add methods for CSV files
+		//
+		// supported params:
+		// 1. String|File|Path (file)
+		// 2. String|File|Path (file), int   (column index), int   (column index)
+		// 3. String|File|Path (file), String (column name), String (column name)
+		//
+		// function signature #1 will assume x and y to be the first two columns.
+		// 
 		public Builder addCSVFile(String filePath) {
 			return this.addCSVFile(Path.of(filePath), 0, 1);
 		}
@@ -308,37 +280,51 @@ public final class Regression {
 			return this.addCSVFile(path, 0, 1);
 		}
 		public Builder addCSVFile(Path path, int i1, int i2) {
-			if (!Files.exists(path))
-				throw new IllegalArgumentException("Specified path does not exist");
+			ensure(Files.exists(path), "Specified path does not exist");
+			ensure(i1 != i2, "Not allowed to use the same column for both x and y values");
+			ensure(i1 >= 0, "Index of x values is not allowed to be negative.");
+			ensure(i2 >= 0, "Index of y values is not allowed to be negative.");
 			
-			if (i1 == i2)
-				throw new IllegalArgumentException("i1 = " + i1 + ", i2 = " + i2);
-			
-			try (BufferedReader br = Files.newBufferedReader(path)) {
-				String line = br.readLine(); // Header
+			String line;
+			String[] elements;
+			try (BufferedReader br = Files.newBufferedReader(path))
+			{
+				line = br.readLine();
+				elements = line.split(",");
+				ensure(elements.length <= Math.max(i1, i2),
+						"The specified CSV file must at least have 2 columns");
+				
+				this.columnNameX = elements[i1];
+				this.columnNameY = elements[i2];
+				
 				while ((line = br.readLine()) != null) {
-					String[] elements = line.split(",");
+					elements = line.split(",");
 					String elementX = elements[i1];
 					String elementY = elements[i2];
 					double xValue = Double.parseDouble(elementX);
 					double yValue = Double.parseDouble(elementY);
 					this.list.add(Point.valueOf(xValue, yValue));
 				}
-			} catch (IOException e) {
-				System.err.println("The CSV-file could not be read from.");
-			} catch (Throwable e) {
+			}
+			catch (IOException e)
+			{
+				System.err.println("The CSV file could not be read from.");
+			}
+			catch (Throwable e)
+			{
 				e.printStackTrace();
 			}
 			return this;
 		}
 		public Builder addCSVFile(Path path, String name1, String name2) {
-			if (name1 == null || name1.isBlank()
-					|| name2 == null || name2.isBlank()
-					|| name1.equals(name2))
-				throw new IllegalArgumentException("Invalid column names");
+			ensure(name1 != null && !name1.isBlank(), "Name 1 is null or empty.");
+			ensure(name2 != null && !name2.isBlank(), "Name 2 is null or empty.");
+			ensure(!name1.equals(name2), "Not allowed to use the same column for both x and x values.");
+			ensure(Files.exists(path), "Unable to find specified CSV file.");
 			
 			try (BufferedReader br = Files.newBufferedReader(path)) {
 				String[] elements = br.readLine().split(",");
+				ensure(elements.length >= 2, "The specified CSV file must have at least 2 columns.");
 				int i1 = -1;
 				int i2 = -1;
 				for (int i = 0; i < elements.length; i++) {
@@ -347,46 +333,30 @@ public final class Regression {
 					if (element.equals(name2)) i2 = i;
 				}
 				
-				if (i1 == -1)
-					throw new IllegalArgumentException("Column #1 not found");
-				
-				if (i2 == -1)
-					throw new IllegalArgumentException("Column #2 not found");
-				
-				if (i1 == i2)
-					throw new AssertionError("Both columns are of the same index, "
-								+ "this should not happen.");
+				ensure(i1 != -1, "Column #1 not found");
+				ensure(i2 != -1, "Column #2 not found");
+				ensure(i1 != i2, "Both columns have the same index. This should normally not happen.");
 				
 				return this.addCSVFile(path, i1, i2);
 			} catch (IOException e) {
-				System.err.println("The CSV-File could not be found or read from.");
+				System.err.println("The CSV file could not read from.");
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 			return this;
 		}
 		
-		/**
-		 * Ensures that the number of arguments is even.
-		 * @param  length       the length of the data container
-		 * @return              the length of the data container
-		 * @throws IllegalArgumentException when length is an
-		 *         odd number. (Points consisting of
-		 *         each an x- and a y-value)
-		 */
+		// validates argument length
+		// must be even and > 0
 		private static final int checkArgumentLength(int length) {
-			if (length % 2 != 0)
-				throw new IllegalArgumentException(
-						"An odd number of parameters was passed");
+			ensure(length % 2 == 0, "An odd number of parameters was passed");
+			ensure(length != 0, "The provided array was empty");
 			return length;
 		}
 		
-		/**
-		 * Builds a new Result instance
-		 * @return              an immutable Result instance
-		 */
-		public Regression build() {
-			return new Regression(this);
-		}
+	}
+	// Assertions and error checking
+	private static final void ensure(boolean assertion, String msg) {
+		if (!assertion) throw new IllegalArgumentException(msg);
 	}
 }
