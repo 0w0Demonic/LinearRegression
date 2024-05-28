@@ -27,7 +27,6 @@ public final class Regression {
 	private final String columnNameX;
 	private final String columnNameY;
 	
-	
 	public String getColumnNameX() {
 		return this.columnNameX;
 	}
@@ -47,10 +46,8 @@ public final class Regression {
 	// Constructor which is invoked by using Regression.Builder.build();
 	// This is where the result is going to be calculated.
 	private Regression(Builder builder) {
-		
-		ensure(builder.list.size() >= 2, "Not enough points were provided to make an approproate "
+		ensure(builder.list.size() >= 2, "Not enough points were provided to make an appropriate "
 				+ "linear regression graph. At least 2 points are needed");
-		
 		
 		this.points = builder.list;
 		this.columnNameX = builder.columnNameX;
