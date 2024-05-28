@@ -27,13 +27,6 @@ public final class Regression {
 	private final String columnNameX;
 	private final String columnNameY;
 	
-	
-	public String getColumnNameX() {
-		return this.columnNameX;
-	}
-	public String getColumnNameY() {
-		return this.columnNameY;
-	}
 	public double getR() {
 		return this.r;
 	}
@@ -43,14 +36,18 @@ public final class Regression {
 	public List<Point> getAllPoints() {
 		return this.points;
 	}
+	public String getColumnNameX() {
+		return this.columnNameX;
+	}
+	public String getColumnNameY() {
+		return this.columnNameY;
+	}
 	/////////////////////////////////////////////////////////////////////////////
 	// Constructor which is invoked by using Regression.Builder.build();
 	// This is where the result is going to be calculated.
 	private Regression(Builder builder) {
-		
-		ensure(builder.list.size() >= 2, "Not enough points were provided to make an approproate "
+		ensure(builder.list.size() >= 2, "Not enough points were provided to make an appropriate "
 				+ "linear regression graph. At least 2 points are needed");
-		
 		
 		this.points = builder.list;
 		this.columnNameX = builder.columnNameX;
@@ -180,7 +177,6 @@ public final class Regression {
 		// ArrayList<Point> of all points
 		private final List<Point> list = new ArrayList<>();
 		
-		
 		// Names of columns read in a CSV file, default to "x", "y".
 		private String columnNameX = "x";
 		private String columnNameY = "y";
@@ -189,7 +185,7 @@ public final class Regression {
 		// Use Regression.newBuilder() to get a new instance
 		private Builder() {}
 		
-		// The build method used to create a new Regression instance
+		// The build method used to 
 		public Regression build() {
 			return new Regression(this);
 		}
@@ -280,10 +276,10 @@ public final class Regression {
 			return this.addCSVFile(path, 0, 1);
 		}
 		public Builder addCSVFile(Path path, int i1, int i2) {
-			ensure(Files.exists(path), "Specified path does not exist");
-			ensure(i1 != i2, "Not allowed to use the same column for both x and y values");
-			ensure(i1 >= 0, "Index of x values is not allowed to be negative.");
-			ensure(i2 >= 0, "Index of y values is not allowed to be negative.");
+			ensure(Files.exists(path), "Specified path does not exist: " + path.toString());
+			ensure(i1 != i2, "Not allowed to use the same column for both x and y values: " + i1);
+			ensure(i1 >= 0, "Index of x values is not allowed to be negative: " + i1);
+			ensure(i2 >= 0, "Index of y values is not allowed to be negative: " + i2);
 			
 			String line;
 			String[] elements;
@@ -291,8 +287,8 @@ public final class Regression {
 			{
 				line = br.readLine();
 				elements = line.split(",");
-				ensure(elements.length <= Math.max(i1, i2),
-						"The specified CSV file must at least have 2 columns");
+				ensure(elements.length <= i1, "Argument #1 lies out of bounds: " + i1);
+				ensure(elements.length <= i2, "Argument #2 lies out of bounds: " + i2);
 				
 				this.columnNameX = elements[i1];
 				this.columnNameY = elements[i2];
@@ -333,8 +329,8 @@ public final class Regression {
 					if (element.equals(name2)) i2 = i;
 				}
 				
-				ensure(i1 != -1, "Column #1 not found");
-				ensure(i2 != -1, "Column #2 not found");
+				ensure(i1 != -1, "Column #1 not found.");
+				ensure(i2 != -1, "Column #2 not found.");
 				ensure(i1 != i2, "Both columns have the same index. This should normally not happen.");
 				
 				return this.addCSVFile(path, i1, i2);
@@ -349,8 +345,8 @@ public final class Regression {
 		// validates argument length
 		// must be even and > 0
 		private static final int checkArgumentLength(int length) {
-			ensure(length % 2 == 0, "An odd number of parameters was passed");
-			ensure(length != 0, "The provided array was empty");
+			ensure(length % 2 == 0, "An odd number of parameters was passed.");
+			ensure(length != 0, "No arguments provided.");
 			return length;
 		}
 		
