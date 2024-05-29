@@ -117,11 +117,9 @@ public final class Regression {
 		r = Double.isFinite(r) ? r : 0;
 		
 		k = r * sy / sx;
-		System.out.println(k);
 		this.k = Double.isFinite(k) ? k : 0;
 		
 		d = meanY - (k * meanX);
-		System.out.println(d);
 		this.d = Double.isFinite(d) ? d : 0;
 	}
 	
@@ -311,7 +309,7 @@ public final class Regression {
 			return this.addCSVFile(path, 0, 1);
 		}
 		public Builder addCSVFile(Path path, int i1, int i2) {
-			ensure(Files.exists(path), "Specified path does not exist: " + path.toString());
+			ensure(Files.exists(path), "Unable to find specified CSV file: " + path.toString());
 			ensure(i1 != i2, "Not allowed to use the same column for both x and y values: " + i1);
 			ensure(i1 >= 0, "Index of x values is not allowed to be negative: " + i1);
 			ensure(i2 >= 0, "Index of y values is not allowed to be negative: " + i2);
@@ -355,9 +353,10 @@ public final class Regression {
 			ensure(name1 != null && !name1.isBlank(), "Name 1 is null or empty.");
 			ensure(name2 != null && !name2.isBlank(), "Name 2 is null or empty.");
 			ensure(!name1.equals(name2), "Not allowed to use the same column for both x and x values.");
-			ensure(Files.exists(path), "Unable to find specified CSV file.");
+			ensure(Files.exists(path), "Unable to find specified CSV file: " + path.toString());
 			
-			try (BufferedReader br = Files.newBufferedReader(path)) {
+			try (BufferedReader br = Files.newBufferedReader(path))
+			{
 				String[] elements = br.readLine().split(",");
 				ensure(elements.length >= 2, "The specified CSV file must have at least 2 columns.");
 				int i1 = -1;
@@ -373,9 +372,12 @@ public final class Regression {
 				ensure(i1 != i2, "Both columns have the same index. This should normally not happen.");
 				
 				return this.addCSVFile(path, i1, i2);
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				System.err.println("The CSV file could not read from.");
-			} catch (Throwable e) {
+			} catch (Throwable e)
+			{
 				e.printStackTrace();
 			}
 			return this;
