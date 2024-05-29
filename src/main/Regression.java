@@ -21,18 +21,26 @@ import java.util.List;
 public final class Regression {
 	/////////////////////////////////////////////////////////////////////////////
 	// private final fields, and their public getter methods.
-	private final double r;
+	private final double k;
 	private final double d;
+	private final double[] xValues;
+	private final double[] yValues;
 	private final List<Point> points;
 	private final String columnNameX;
 	private final String columnNameY;
 	private final String[] columnNames;
 	
-	public double getR() {
-		return this.r;
+	public double getK() {
+		return this.k;
 	}
 	public double getD() {
 		return this.d;
+	}
+	public double[] getAllXValues() {
+		return this.xValues;
+	}
+	public double[] getAllYValues() {
+		return this.yValues;
 	}
 	public List<Point> getAllPoints() {
 		return this.points;
@@ -50,25 +58,30 @@ public final class Regression {
 	// Constructor which is invoked by using Regression.Builder.build();
 	// This is where the result is going to be calculated.
 	private Regression(Builder builder) {
-		ensure(builder.list.size() >= 2, "Not enough points were provided to make an appropriate "
-				+ "linear regression graph. At least 2 points are needed");
+		ensure(builder.list.size() >= 3, "Not enough points were provided to make an appropriate "
+				+ "linear regression graph. At least 3 points are needed");
 		
 		this.points = builder.list;
 		this.columnNameX = builder.columnNameX;
 		this.columnNameY = builder.columnNameY;
 		this.columnNames = builder.columnNames;
 		
+		
+		final int size = this.points.size();
 		Point p = null;
-		int size = this.points.size();
+		this.xValues = new double[size];
+		this.yValues = new double[size];
 		double sumX = 0, sumY = 0, sumXY = 0,
-				meanX, meanY, tempX, tempY,
-				sx, sy, sxy, r, k, d;
+				meanX, meanY,
+				deltaX, deltaY,
+				sx, sy, sxy,
+				r, k, d;
 		
 		// get means
 		for (int i = 0; i < size; i++) {
 			p = this.points.get(i);
-			sumX += p.getX();
-			sumY += p.getY();
+			sumX += (this.xValues[i] = p.getX());
+			sumY += (this.yValues[i] = p.getY());
 		}
 		meanX = sumX / size;
 		meanY = sumY / size;
@@ -76,23 +89,23 @@ public final class Regression {
 		// get sx, sy, sxy
 		sumX = 0;
 		sumY = 0;
+		
  		for (int i = 0; i < size; i++) {
-			p = this.points.get(i);
-			tempX = (p.getX() - meanX);
-			tempY = (p.getY() - meanY);
-			sumX += tempX * tempX;
-			sumY += tempY * tempY;
-			sumXY += tempX * tempY;
+ 			deltaX = this.xValues[i] - meanX;
+ 			deltaY = this.yValues[i] - meanY;
+			sumX += deltaX * deltaX;
+			sumY += deltaY * deltaY;
+			sumXY += deltaX * deltaY;
 		}
-		sx = Math.sqrt(sumX / (size - 1));
-		sy = Math.sqrt(sumY / (size - 1));
+ 		sx = StrictMath.sqrt(sumX / (size - 1));
+		sy = StrictMath.sqrt(sumY / (size - 1));
 		sxy = sumXY / (size - 1);
 		
 		// get r, k, d
 		r = sxy / (sx * sy);
 		k = r * sy / sx;
 		d = meanY - (k * meanX);
-		this.r = r;
+		this.k = k;
 		this.d = d;
 	}
 	
@@ -100,8 +113,8 @@ public final class Regression {
 	@Override
 	public String toString() {
 		return new StringBuilder(128)
-			.append("Result [r = ")
-			.append(this.r)
+			.append("Result [k = ")
+			.append(this.k)
 			.append(", d = ")
 			.append(this.d)
 			.append("]")
@@ -191,7 +204,7 @@ public final class Regression {
 		// Use Regression.newBuilder() to get a new instance
 		private Builder() {}
 		
-		// The build method used to 
+		// Initializes calculation
 		public Regression build() {
 			return new Regression(this);
 		}
