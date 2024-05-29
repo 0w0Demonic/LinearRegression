@@ -58,10 +58,9 @@ public final class Regression {
 	// Constructor which is invoked by using Regression.Builder.build();
 	// This is where the result is going to be calculated.
 	private Regression(Builder builder) {
-		ensure(builder.list.size() >= 3, "Not enough points were provided to make an appropriate "
-				+ "linear regression graph. At least 3 points are needed");
+		ensure(builder.list.size() >= 3, "At least 3 points need to be provided.");
 		
-		this.points = builder.list;
+		this.points      = builder.list;
 		this.columnNameX = builder.columnNameX;
 		this.columnNameY = builder.columnNameY;
 		this.columnNames = builder.columnNames;
@@ -275,22 +274,19 @@ public final class Regression {
 			return this;
 		}
 		public Builder addPoints(Point... points) {
-			for (int i = 0; i < points.length; i++) {
+			for (int i = 0; i < points.length; i++)
 				this.list.add(points[i]);
-			}
 			return this;
 		}
 		public Builder addDoubles(Collection<Double> c) {
-			int estimateSize = (int)c.spliterator().getExactSizeIfKnown();
-			int counter = 0;
-			
 			if (c instanceof ArrayList<Double> al) {
-				for (int i = 0, n = checkArgumentLength(estimateSize); i < n; )
+				for (int i = 0, n = checkArgumentLength(c.size()); i < n; )
 					this.list.add(Point.valueOf(al.get(i++),
 												al.get(i++)));
 				return this;
 			}
 			
+			int counter = 0;
 			for (var iterator = c.iterator(); iterator.hasNext(); ++counter)
 				this.list.add(Point.valueOf(iterator.next(),
 											iterator.next()));
@@ -298,11 +294,8 @@ public final class Regression {
 			return this;
 		}
 		public Builder addDoubles(double... doubles) {
-			int length = checkArgumentLength(doubles.length);
-			for (int i = 0; i < length; ++i) {
-				this.list.add(Point.valueOf(doubles[i],
-											doubles[++i]));
-			}
+			for (int i = 0, length = checkArgumentLength(doubles.length); i < length; ++i)
+				this.list.add(Point.valueOf(doubles[i], doubles[++i]));
 			return this;
 		}
 		
@@ -405,7 +398,8 @@ public final class Regression {
 			catch (IOException e)
 			{
 				System.err.println("The CSV file could not read from.");
-			} catch (Throwable e)
+			}
+			catch (Throwable e)
 			{
 				e.printStackTrace();
 			}
