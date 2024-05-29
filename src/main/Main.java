@@ -4,16 +4,17 @@ import java.util.List;
 
 public final class Main {
 	public static void main(String[] args) {
-		
+		System.out.println();
 		Regression result = Regression
 					.newBuilder()
 					.addCSVFile("C:/Users/roemer/Desktop/test.csv",
-								"tmax",
-								"snow")
+								"pres",
+								"tsun")
 					.build();
 		
-		System.out.println(result);
-		result.getAllPoints().stream().limit(10).forEach(System.out::println);
+		System.out.println("k: " + result.getK());
+		System.out.println("d: " + result.getD());
+		java.util.Arrays.asList(result.getAllColumnNames()).forEach(System.out::println);
 		
 	}
 	private static final List<Point> getListOfPoints() {

@@ -10,8 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A class consisting of the fields r and d, and a Builder class.
- * Example:
+ * A class representing simple linear regression of two-dimensional points.
  * 
  * List<Point> pointList = getPoints();
  * Result myResult = Result.newBuilder().add(Point.valueOf(23, 45))
@@ -54,6 +53,7 @@ public final class Regression {
 	public String[] getAllColumnNames() {
 		return this.columnNames;
 	}
+	
 	/////////////////////////////////////////////////////////////////////////////
 	// Constructor which is invoked by using Regression.Builder.build();
 	// This is where the result is going to be calculated.
@@ -158,6 +158,35 @@ public final class Regression {
 	
 	public static final Regression ofDoubles(double... arr) {
 		return newBuilder().addDoubles(arr).build();
+	}
+	
+	
+	/////////////////////////////////////////////////////////////////////////////
+	// Methods that return a String[] of a CSV header
+	//
+	// Supported params: String|File|Path
+	// 
+	public static String[] columnNamesOfCSV(String filePath) {
+		return columnNamesOfCSV(Path.of(filePath));
+	}
+	public static String[] columnNamesOfCSV(File file) {
+		return columnNamesOfCSV(file.toPath());
+	}
+	public static String[] columnNamesOfCSV(Path path) {
+		ensure(Files.exists(path), "Unable to find specified CSV file: " + path.toString());
+		try (BufferedReader br = Files.newBufferedReader(path))
+		{
+		 	return br.readLine().split(",");
+		}
+		catch (IOException e)
+		{
+			System.err.println("The CSV file could not be read from.");
+		}
+		catch (Throwable e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////
