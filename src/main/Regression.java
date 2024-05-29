@@ -68,10 +68,13 @@ public final class Regression {
 		
 		
 		final int size = this.points.size();
-		Point p = null;
 		this.xValues = new double[size];
 		this.yValues = new double[size];
+		Point p = null;
+		boolean allPointsSameXValue = true;
 		double sumX = 0, sumY = 0, sumXY = 0,
+				x, y,
+				firstXValue = this.points.get(0).getX(),
 				meanX, meanY,
 				deltaX, deltaY,
 				sx, sy, sxy,
@@ -80,9 +83,16 @@ public final class Regression {
 		// get means
 		for (int i = 0; i < size; i++) {
 			p = this.points.get(i);
-			sumX += (this.xValues[i] = p.getX());
-			sumY += (this.yValues[i] = p.getY());
+			x = p.getX();
+			y = p.getY();
+			sumX += (this.xValues[i] = x);
+			sumY += (this.yValues[i] = y);
+			if (x != firstXValue)
+				allPointsSameXValue = false;
 		}
+		
+		ensure(!allPointsSameXValue, "All provided points have the same x value.");
+		
 		meanX = sumX / size;
 		meanY = sumY / size;
 		
@@ -97,16 +107,22 @@ public final class Regression {
 			sumY += deltaY * deltaY;
 			sumXY += deltaX * deltaY;
 		}
- 		sx = StrictMath.sqrt(sumX / (size - 1));
-		sy = StrictMath.sqrt(sumY / (size - 1));
+ 		
+ 		sx = Math.sqrt(sumX / (size - 1));
+		sy = Math.sqrt(sumY / (size - 1));
 		sxy = sumXY / (size - 1);
 		
 		// get r, k, d
 		r = sxy / (sx * sy);
+		r = Double.isFinite(r) ? r : 0;
+		
 		k = r * sy / sx;
+		System.out.println(k);
+		this.k = Double.isFinite(k) ? k : 0;
+		
 		d = meanY - (k * meanX);
-		this.k = k;
-		this.d = d;
+		System.out.println(d);
+		this.d = Double.isFinite(d) ? d : 0;
 	}
 	
 	// String representation in the format of "Result [r = 123, d = 321]"
