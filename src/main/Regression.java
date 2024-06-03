@@ -22,6 +22,7 @@ public final class Regression {
 	// private final fields, and their public getter methods.
 	private final double k;
 	private final double d;
+	private final double r;
 	private final double[] xValues;
 	private final double[] yValues;
 	private final List<Point> points;
@@ -34,6 +35,9 @@ public final class Regression {
 	}
 	public double getD() {
 		return this.d;
+	}
+	public double getR() {
+		return this.r;
 	}
 	public double[] getAllXValues() {
 		return this.xValues;
@@ -114,12 +118,15 @@ public final class Regression {
 		// get r, k, d
 		r = sxy / (sx * sy);
 		r = Double.isFinite(r) ? r : 0;
+		this.r = r; 
 		
 		k = r * sy / sx;
-		this.k = Double.isFinite(k) ? k : 0;
+		k = Double.isFinite(k) ? k : 0;
+		this.k = k;
 		
 		d = meanY - (k * meanX);
-		this.d = Double.isFinite(d) ? d : 0;
+		d = Double.isFinite(d) ? d : 0;
+		this.d = d;
 	}
 	
 	// String representation in the format of "Result [r = 123, d = 321]"
